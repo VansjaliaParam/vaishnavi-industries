@@ -1,26 +1,155 @@
 @import "tailwindcss";
 
+/* ── Enable .dark class-based dark mode (next-themes toggles <html class="dark">) ── */
+@custom-variant dark (&:is(.dark, .dark *));
+
+/* ── Theme CSS custom properties ── */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Light theme - warm alabaster */
+  --bg:          #F7F4EE;
+  --surface:     #FFFFFF;
+  --raised:      #FBF9F4;
+  --text:        #1A1815;
+  --muted-color: #6E6760;
+  --brass:       #C6A15B;
+  --brass-text:  #8C6E35;
+  --line-color:  rgba(140, 110, 53, 0.22);
+  --shadow-card: 0 18px 40px -22px rgba(40, 32, 12, 0.28);
+  --grain-opacity: 0.04;
 }
 
+.dark {
+  /* Dark theme - signature luxury */
+  --bg:          #0C0C0D;
+  --surface:     #141416;
+  --raised:      #1E1E22;
+  --text:        #F4F1EA;
+  --muted-color: #9A958C;
+  --brass:       #C6A15B;
+  --brass-text:  #E4C988;
+  --line-color:  rgba(198, 161, 91, 0.16);
+  --shadow-card: 0 24px 60px -20px rgba(0, 0, 0, 0.6);
+  --grain-opacity: 0.06;
+}
+
+/* ── Map to Tailwind semantic tokens ── */
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-bg:          var(--bg);
+  --color-surface:     var(--surface);
+  --color-raised:      var(--raised);
+  --color-text:        var(--text);
+  --color-muted:       var(--muted-color);
+  --color-brass:       var(--brass);
+  --color-brass-text:  var(--brass-text);
+  --color-line:        var(--line-color);
+  --color-brass-light: #E4C988;
+  --color-brass-dark:  #9B7B3D;
+  --color-success:     #6FB286;
+  --color-danger:      #D9786B;
+  --shadow-lux:        var(--shadow-card);
+  --shadow-brass-glow: 0 0 40px -8px rgba(198, 161, 91, 0.45);
+  --tracking-eyebrow:  0.18em;
+  --max-w-content:     1280px;
+  --font-display:      var(--font-playfair);
+  --font-sans:         var(--font-inter);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* ── Base ── */
+html {
+  scroll-behavior: auto;
+  /* Hide the page scrollbar without disabling scrolling (Firefox / legacy Edge) */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+html::-webkit-scrollbar,
+body::-webkit-scrollbar {
+  display: none;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  /* Smooth color transition when theme flips */
+  transition: background-color 0.5s ease, color 0.5s ease;
+}
+
+/* ── Custom utilities ── */
+@utility container-lux {
+  margin-left: auto;
+  margin-right: auto;
+  width: 100%;
+  max-width: 1280px;
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+
+  @media (width >= 768px) {
+    padding-left: 2.5rem;
+    padding-right: 2.5rem;
+  }
+}
+
+@utility eyebrow {
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: var(--brass-text);
+}
+
+@utility text-brass-sheen {
+  background: linear-gradient(120deg, #9B7B3D 0%, #E4C988 45%, #C6A15B 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
+@utility divider-lux {
+  height: 1px;
+  width: 100%;
+  background-color: var(--line-color);
+}
+
+@utility bg-brass-sheen {
+  background-image: linear-gradient(120deg, #9B7B3D 0%, #E4C988 45%, #C6A15B 100%);
+}
+
+@utility bg-hero-glow {
+  background-image: radial-gradient(60% 50% at 50% 0%, rgba(198, 161, 91, 0.18), transparent 70%);
+}
+
+/* ── View Transitions - circular reveal from toggle click point ── */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+::view-transition-new(root) {
+  animation: vt-reveal 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+  clip-path: circle(0% at var(--vt-x, 50%) var(--vt-y, 50%));
+}
+
+@keyframes vt-reveal {
+  to { clip-path: circle(150% at var(--vt-x, 50%) var(--vt-y, 50%)); }
+}
+
+/* ── Reduced motion ── */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    transition-duration: 0.001ms !important;
+  }
+
+  ::view-transition-new(root) {
+    animation: none;
+    clip-path: none;
+  }
 }
