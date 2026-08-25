@@ -52,17 +52,26 @@ export default function ProductQuickView({ product, onClose }: ProductQuickViewP
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.93 }}
             transition={{ duration: 0.35, ease: EASE }}
-            className="fixed inset-x-4 top-1/2 z-70 -translate-y-1/2 mx-auto max-w-2xl rounded-2xl bg-surface border border-line shadow-lux overflow-hidden md:inset-x-auto md:left-1/2 md:-translate-x-1/2 md:w-full"
+            className="fixed inset-x-4 top-1/2 z-70 -translate-y-1/2 mx-auto max-h-[90dvh] max-w-2xl overflow-y-auto rounded-2xl bg-surface border border-line shadow-lux md:inset-x-auto md:left-1/2 md:-translate-x-1/2 md:max-w-5xl md:w-[calc(100vw-4rem)]"
           >
-            <div className="grid grid-cols-1 md:grid-cols-2">
-              <div className="relative aspect-square bg-raised">
-                <Image src={product.image} alt={product.name} fill className="object-cover" priority />
+            <div className="grid grid-cols-1 md:grid-cols-[1.15fr_1fr]">
+              {/* Landscape source art (3:2). On desktop the panel stretches to the
+                  row height set by the details column so no gap is left below it. */}
+              <div className="relative aspect-3/2 bg-raised md:aspect-auto md:h-full md:min-h-[24rem]">
+                <Image
+                  src={product.image}
+                  alt={product.name}
+                  fill
+                  sizes="(max-width: 768px) 100vw, 560px"
+                  className="object-cover object-center"
+                  priority
+                />
               </div>
 
-              <div className="flex flex-col gap-5 p-6">
+              <div className="flex flex-col gap-5 p-6 md:p-8">
                 <div>
                   <span className="eyebrow">{product.category}</span>
-                  <h2 className="mt-2 font-display text-2xl font-semibold text-text">{product.name}</h2>
+                  <h2 className="mt-2 font-display text-2xl md:text-3xl font-semibold text-text">{product.name}</h2>
                   <p className="mt-1 text-sm text-muted font-mono">{product.modelNo}</p>
                 </div>
 
@@ -106,9 +115,10 @@ export default function ProductQuickView({ product, onClose }: ProductQuickViewP
               </div>
             </div>
 
+            {/* Below md the close button overlaps the photo, so it carries its own scrim. */}
             <button
               onClick={onClose}
-              className="absolute top-3 right-3 p-2 text-muted hover:text-text transition-colors rounded-full hover:bg-raised"
+              className="absolute top-3 right-3 z-10 rounded-full bg-surface/70 p-2 text-muted backdrop-blur-sm transition-colors hover:text-text hover:bg-raised md:bg-transparent md:backdrop-blur-none"
               aria-label="Close"
             >
               <X size={18} />

@@ -13,7 +13,7 @@ const STEPS = [
   {
     n: "02",
     title: "Casting & Forging",
-    desc: "Solid brass or zinc alloy poured into precision dies. Critical components are hot-forged for superior grain structure and long-term durability.",
+    desc: "SS-304 stainless steel or zinc alloy poured into precision dies. Critical components are hot-forged for superior grain structure and long-term durability.",
   },
   {
     n: "03",
@@ -28,7 +28,7 @@ const STEPS = [
   {
     n: "05",
     title: "Quality Control",
-    desc: "100% visual inspection, dimensional audit on sampled parts, and 50,000-cycle durability testing before any batch ships.",
+    desc: "100% visual inspection, dimensional audit on sampled parts, and finish adhesion and smooth-operation checks before any batch ships.",
   },
 ];
 

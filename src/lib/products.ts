@@ -56,7 +56,7 @@ const bathProducts: Product[] = BATH.flatMap(([name, models]) =>
     category: "Bath Accessories" as const,
     collection: series,
     image: img(modelNo),
-    blurb: `${name} from the ${series} series - solid brass, precision-finished.`,
+    blurb: `${name} from the ${series} series - SS-304 stainless steel, precision-finished.`,
   }))
 );
 

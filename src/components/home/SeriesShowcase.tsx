@@ -38,7 +38,7 @@ const THEME: Record<Series, SeriesTheme> = {
     glow: "rgba(242, 169, 126, 0.45)",
     tone: "Apricot",
     alt: "Afyon series towel rail, napkin ring and tumbler holder staged against a warm apricot backdrop with flowers",
-    desc: "Our flagship bath line - generous, sculpted forms in solid brass with a warm, architectural presence.",
+    desc: "Our flagship bath line - generous, sculpted forms in SS-304 stainless steel with a warm, architectural presence.",
   },
   Curio: {
     hero: "/series/curio.jpg",

@@ -19,7 +19,7 @@ const VALUES = [
   {
     Icon: Sparkles,
     title: "Built to Last",
-    desc: "50,000-cycle durability testing and solid-brass construction. Vaishnavi hardware outlasts the projects it's specified for.",
+    desc: "SS-304 stainless steel construction and corrosion-resistant finishes. Vaishnavi hardware outlasts the projects it's specified for.",
   },
   {
     Icon: Globe,

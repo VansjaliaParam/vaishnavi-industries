@@ -69,7 +69,7 @@ export default function Hero() {
           </h1>
 
           <motion.p variants={fadeIn} className="max-w-xl text-lg text-muted leading-relaxed mb-10">
-            Bath accessories, door closers and handles - solid brass, precision-machined.
+            Bath accessories, door closers and handles - SS-304 stainless steel, precision-machined.
             Shipped to 6+ countries from our Gujarat factory.
           </motion.p>
 
