@@ -25,7 +25,7 @@ export const site = {
   founders: [
     {
       name: "Dilip Hapaliya",
-      role: "Founder",
+      role: "Founder & Managing Director",
       photo: "/founders/dilip-hapaliya.jpg",
       bio: "",
     },

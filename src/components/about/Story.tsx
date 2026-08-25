@@ -48,7 +48,7 @@ export default function Story() {
             <Reveal delay={0.2}>
               <p className="mt-4 text-muted leading-relaxed">
                 What has not changed is the commitment to making hardware that outlasts the buildings
-                it goes into. Every product is designed in-house, cast or forged from solid brass,
+                it goes into. Every product is designed in-house, cast or forged from SS-304 stainless steel,
                 and finished under the same roof - no outsourced platings, no shortcuts.
               </p>
             </Reveal>
