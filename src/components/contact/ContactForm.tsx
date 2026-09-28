@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { MessageCircle, Mail, X, CheckCircle } from "lucide-react";
+import { MessageCircle, Send, Loader2, X, CheckCircle } from "lucide-react";
 import { useEnquiry } from "@/context/EnquiryContext";
 import Select from "@/components/ui/Select";
 import { categories, getById } from "@/lib/products";
@@ -29,7 +29,7 @@ const INITIAL: FormState = {
   message: "",
 };
 
-type Status = "idle" | "submitted";
+type Status = "idle" | "sending" | "sent" | "handoff";
 
 const inputCls = cn(
   "w-full rounded-xl bg-raised border border-line px-4 py-3 text-sm text-text placeholder-muted/50",
@@ -40,7 +40,9 @@ export default function ContactForm() {
   const [form, setForm] = useState<FormState>(INITIAL);
   const [errors, setErrors] = useState<Partial<FormState>>({});
   const [status, setStatus] = useState<Status>("idle");
-  const { ids, remove } = useEnquiry();
+  const [sendError, setSendError] = useState("");
+  const [honeypot, setHoneypot] = useState("");
+  const { ids, remove, clear } = useEnquiry();
 
   const selectedProducts = ids.map(getById).filter(Boolean) as NonNullable<ReturnType<typeof getById>>[];
 
@@ -63,18 +65,30 @@ export default function ContactForm() {
     if (!validate()) return;
     const text = encodeURIComponent(buildContactText(form, selectedProducts));
     window.open(`https://wa.me/${site.whatsapp}?text=${text}`, "_blank", "noopener,noreferrer");
-    setStatus("submitted");
+    setStatus("handoff");
   };
 
-  const openEmail = () => {
+  const submit = async () => {
     if (!validate()) return;
-    const subject = encodeURIComponent("Product Enquiry - Vaishnavi Industries");
-    const body = encodeURIComponent(buildContactText(form, selectedProducts));
-    window.location.href = `mailto:${site.email}?subject=${subject}&body=${body}`;
-    setStatus("submitted");
+    setSendError("");
+    setStatus("sending");
+    try {
+      const res = await fetch("/api/enquiry", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...form, productIds: ids, website: honeypot }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || "Something went wrong.");
+      clear();
+      setStatus("sent");
+    } catch (err) {
+      setSendError(err instanceof Error ? err.message : "Something went wrong.");
+      setStatus("idle");
+    }
   };
 
-  if (status === "submitted") {
+  if (status === "sent" || status === "handoff") {
     return (
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
@@ -82,9 +96,13 @@ export default function ContactForm() {
         className="flex flex-col items-center justify-center gap-5 rounded-2xl border border-line bg-raised p-12 text-center"
       >
         <CheckCircle size={40} className="text-success" />
-        <h3 className="font-display text-2xl font-semibold text-text">Opening your app…</h3>
+        <h3 className="font-display text-2xl font-semibold text-text">
+          {status === "sent" ? "Enquiry sent" : "Opening WhatsApp…"}
+        </h3>
         <p className="text-muted max-w-sm">
-          Your message has been pre-filled. Complete the send in WhatsApp or your email client.
+          {status === "sent"
+            ? `Thank you, ${form.name.split(" ")[0] || "there"}. Your enquiry has reached our sales team — we'll reply to ${form.email} shortly.`
+            : "Your message has been pre-filled. Complete the send in WhatsApp."}
         </p>
         <button
           onClick={() => { setStatus("idle"); setForm(INITIAL); }}
@@ -97,7 +115,14 @@ export default function ContactForm() {
   }
 
   return (
-    <form className="flex flex-col gap-5" onSubmit={(e) => e.preventDefault()} noValidate>
+    <form
+      className="relative flex flex-col gap-5"
+      onSubmit={(e) => {
+        e.preventDefault();
+        submit();
+      }}
+      noValidate
+    >
       <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
         <Field label="Name *" error={errors.name}>
           <input className={cn(inputCls, errors.name && "border-danger")} placeholder="Your name" value={form.name} onChange={set("name")} />
@@ -155,25 +180,63 @@ export default function ContactForm() {
         </div>
       )}
 
+      {/* Honeypot — off-screen for people, irresistible to bots. */}
+      <input
+        type="text"
+        name="website"
+        tabIndex={-1}
+        autoComplete="off"
+        aria-hidden="true"
+        value={honeypot}
+        onChange={(e) => setHoneypot(e.target.value)}
+        className="absolute -left-[9999px] h-0 w-0 opacity-0"
+      />
+
+      <AnimatePresence>
+        {sendError && (
+          <motion.p
+            initial={{ opacity: 0, y: -4 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0 }}
+            className="rounded-xl border border-danger/40 bg-danger/10 px-4 py-3 text-xs text-danger"
+          >
+            {sendError} You can also reach us on WhatsApp or at{" "}
+            <a href={`mailto:${site.email}`} className="underline">
+              {site.email}
+            </a>
+            .
+          </motion.p>
+        )}
+      </AnimatePresence>
+
       <div className="flex flex-col gap-3 sm:flex-row mt-2">
         <button
-          type="button"
-          onClick={openWhatsApp}
-          className="flex flex-1 items-center justify-center gap-2.5 rounded-full bg-brass-sheen py-3.5 text-sm font-semibold text-bg shadow-brass-glow hover:scale-[1.02] transition-transform"
+          type="submit"
+          disabled={status === "sending"}
+          className="flex flex-1 items-center justify-center gap-2.5 rounded-full bg-brass-sheen py-3.5 text-sm font-semibold text-bg shadow-brass-glow transition-transform hover:scale-[1.02] disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:scale-100"
         >
-          <MessageCircle size={16} /> Send via WhatsApp
+          {status === "sending" ? (
+            <>
+              <Loader2 size={16} className="animate-spin" /> Sending…
+            </>
+          ) : (
+            <>
+              <Send size={16} /> Send Enquiry
+            </>
+          )}
         </button>
         <button
           type="button"
-          onClick={openEmail}
-          className="flex flex-1 items-center justify-center gap-2.5 rounded-full border border-line py-3.5 text-sm text-text hover:border-brass/50 transition-colors"
+          onClick={openWhatsApp}
+          disabled={status === "sending"}
+          className="flex flex-1 items-center justify-center gap-2.5 rounded-full border border-line py-3.5 text-sm text-text transition-colors hover:border-brass/50 disabled:opacity-60"
         >
-          <Mail size={16} /> Send via Email
+          <MessageCircle size={16} /> Send via WhatsApp
         </button>
       </div>
 
       <p className="text-xs text-muted text-center">
-        No data is stored. Your message is handed directly to WhatsApp or your mail client.
+        Your enquiry goes straight to our sales team. We usually reply within one business day.
       </p>
     </form>
   );
